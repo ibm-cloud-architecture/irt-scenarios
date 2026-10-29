@@ -1,0 +1,591 @@
+{
+  "id" : "Pk6fraABi4fJg3iXOkTu",
+  "name" : "Shipment Management",
+  "description" : "",
+  "owner" : "cpmanager",
+  "type" : "EVERYONE",
+  "visualizations" : [ {
+    "id" : "b0e721f1-b198-4fbb-ad15-e267b25ee9fd",
+    "name" : "Number of shipments",
+    "description" : "",
+    "config" : {
+      "type" : "MetricConfigDto",
+      "domain" : {
+        "kind" : "Workflow (BPMN)",
+        "monitoringSourceName" : "Workflow (BPMN)",
+        "id" : "e0d1a11a-13a1-4fc7-8d98-b5d2d2ae79e4 - 2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d",
+        "name" : "Shipment BAI Wrapper 2 - 2.0.73",
+        "fields" : [ "processId", "processVersionId" ],
+        "fieldValues" : [ "e0d1a11a-13a1-4fc7-8d98-b5d2d2ae79e4", "2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d" ],
+        "timestampField" : "timestamp",
+        "hasSuggestions" : false
+      },
+      "fieldAggregation" : {
+        "aggregations" : [ {
+          "field" : "data.at17709237669911771851481532.BAIorderID.string.keyword",
+          "kind" : "UniqueCount"
+        } ],
+        "groups" : [ ],
+        "drill" : false,
+        "_version" : 2
+      },
+      "settings" : {
+        "type" : "SingleSettingsTextDto",
+        "displayTitle" : true,
+        "unit" : "shipments",
+        "useCustomPalette" : false,
+        "_version" : 1
+      },
+      "_version" : 1
+    },
+    "layouts" : [ {
+      "kind" : "SM",
+      "x" : 0.0,
+      "y" : 0.0,
+      "w" : 1.0,
+      "h" : 2.0
+    }, {
+      "kind" : "LG",
+      "x" : 0.0,
+      "y" : 0.0,
+      "w" : 6.0,
+      "h" : 1.0
+    } ],
+    "showAsTable" : false
+  }, {
+    "id" : "42c81298-3d74-4699-9931-19c63afa13da",
+    "name" : "Shipments by product",
+    "description" : "",
+    "config" : {
+      "type" : "MetricConfigDto",
+      "domain" : {
+        "kind" : "Workflow (BPMN)",
+        "monitoringSourceName" : "Workflow (BPMN)",
+        "id" : "e0d1a11a-13a1-4fc7-8d98-b5d2d2ae79e4 - 2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d",
+        "name" : "Shipment BAI Wrapper 2 - 2.0.73",
+        "fields" : [ "processId", "processVersionId" ],
+        "fieldValues" : [ "e0d1a11a-13a1-4fc7-8d98-b5d2d2ae79e4", "2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d" ],
+        "timestampField" : "timestamp",
+        "hasSuggestions" : false
+      },
+      "fieldAggregation" : {
+        "aggregations" : [ {
+          "field" : "data.at17709237669911771851481532.BAIorderID.string.keyword",
+          "kind" : "UniqueCount"
+        } ],
+        "groups" : [ {
+          "field" : "data.at17709237669911771851481532.BAIproductName.string.keyword"
+        } ],
+        "drill" : false,
+        "_version" : 2
+      },
+      "settings" : {
+        "type" : "SingleSettingsBarDto",
+        "displayTitle" : true,
+        "unit" : "",
+        "legend" : {
+          "displayLegend" : true,
+          "displayTitle" : true,
+          "title" : ""
+        },
+        "useCustomPalette" : false,
+        "labelYAxis" : "",
+        "verticalDirection" : true,
+        "stacked" : true,
+        "chartValueLabel" : {
+          "displayed" : false,
+          "format" : "Value",
+          "location" : "center"
+        },
+        "_version" : 1
+      },
+      "_version" : 1
+    },
+    "layouts" : [ {
+      "kind" : "SM",
+      "x" : 0.0,
+      "y" : 6.0,
+      "w" : 1.0,
+      "h" : 2.0
+    }, {
+      "kind" : "LG",
+      "x" : 0.0,
+      "y" : 1.0,
+      "w" : 2.0,
+      "h" : 2.0
+    } ],
+    "showAsTable" : false
+  }, {
+    "id" : "b6e38327-3662-4e32-ba27-6e7546a3ed9f",
+    "name" : "Shipments by Status",
+    "description" : "",
+    "config" : {
+      "type" : "MetricConfigDto",
+      "domain" : {
+        "kind" : "Workflow (BPMN)",
+        "monitoringSourceName" : "Workflow (BPMN)",
+        "id" : "e0d1a11a-13a1-4fc7-8d98-b5d2d2ae79e4 - 2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d",
+        "name" : "Shipment BAI Wrapper 2 - 2.0.73",
+        "fields" : [ "processId", "processVersionId" ],
+        "fieldValues" : [ "e0d1a11a-13a1-4fc7-8d98-b5d2d2ae79e4", "2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d" ],
+        "timestampField" : "timestamp",
+        "hasSuggestions" : false
+      },
+      "fieldAggregation" : {
+        "aggregations" : [ {
+          "field" : "data.at17709237669911771851481532.BAIorderID.string.keyword",
+          "kind" : "UniqueCount"
+        } ],
+        "groups" : [ {
+          "field" : "data.at17709237669911771851481532.BAIdeliveryStatus.string.keyword"
+        } ],
+        "drill" : false,
+        "_version" : 2
+      },
+      "settings" : {
+        "type" : "SingleSettingsPieDto",
+        "displayTitle" : true,
+        "unit" : "",
+        "legend" : {
+          "displayLegend" : true,
+          "displayTitle" : true,
+          "title" : ""
+        },
+        "useCustomPalette" : false,
+        "pieChartLabelDisplayed" : true,
+        "pieChartLabelFormat" : "Percentage",
+        "_version" : 1
+      },
+      "_version" : 1
+    },
+    "layouts" : [ {
+      "kind" : "SM",
+      "x" : 0.0,
+      "y" : 2.0,
+      "w" : 1.0,
+      "h" : 2.0
+    }, {
+      "kind" : "LG",
+      "x" : 2.0,
+      "y" : 1.0,
+      "w" : 2.0,
+      "h" : 2.0
+    } ],
+    "showAsTable" : false
+  }, {
+    "id" : "c9bf3092-cfab-4c8a-821b-7ccd6c91413c",
+    "name" : "Shipment by carrier",
+    "description" : "",
+    "config" : {
+      "type" : "MetricConfigDto",
+      "domain" : {
+        "kind" : "Workflow (BPMN)",
+        "monitoringSourceName" : "Workflow (BPMN)",
+        "id" : "e0d1a11a-13a1-4fc7-8d98-b5d2d2ae79e4 - 2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d",
+        "name" : "Shipment BAI Wrapper 2 - 2.0.73",
+        "fields" : [ "processId", "processVersionId" ],
+        "fieldValues" : [ "e0d1a11a-13a1-4fc7-8d98-b5d2d2ae79e4", "2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d" ],
+        "timestampField" : "timestamp",
+        "hasSuggestions" : false
+      },
+      "fieldAggregation" : {
+        "aggregations" : [ {
+          "field" : "data.at17709237669911771851481532.BAIorderID.string.keyword",
+          "kind" : "UniqueCount"
+        } ],
+        "groups" : [ {
+          "field" : "data.at17709237669911771851481532.BAIcarrierName.string.keyword"
+        } ],
+        "drill" : false,
+        "_version" : 2
+      },
+      "settings" : {
+        "type" : "SingleSettingsPieDto",
+        "displayTitle" : true,
+        "unit" : "",
+        "legend" : {
+          "displayLegend" : true,
+          "displayTitle" : true,
+          "title" : ""
+        },
+        "useCustomPalette" : false,
+        "pieChartLabelDisplayed" : true,
+        "pieChartLabelFormat" : "Percentage",
+        "_version" : 1
+      },
+      "_version" : 1
+    },
+    "layouts" : [ {
+      "kind" : "SM",
+      "x" : 0.0,
+      "y" : 4.0,
+      "w" : 1.0,
+      "h" : 2.0
+    }, {
+      "kind" : "LG",
+      "x" : 4.0,
+      "y" : 1.0,
+      "w" : 2.0,
+      "h" : 2.0
+    } ],
+    "showAsTable" : false
+  }, {
+    "id" : "ea34159e-8c90-4ad2-b4f6-10f1806cc74a",
+    "name" : "Number of shipments by date",
+    "description" : "",
+    "config" : {
+      "type" : "MetricTrendConfigDto",
+      "domain" : {
+        "kind" : "Workflow (BPMN)",
+        "monitoringSourceName" : "Workflow (BPMN)",
+        "id" : "e0d1a11a-13a1-4fc7-8d98-b5d2d2ae79e4 - 2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d",
+        "name" : "Shipment BAI Wrapper 2 - 2.0.73",
+        "fields" : [ "processId", "processVersionId" ],
+        "fieldValues" : [ "e0d1a11a-13a1-4fc7-8d98-b5d2d2ae79e4", "2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d" ],
+        "timestampField" : "timestamp",
+        "hasSuggestions" : false
+      },
+      "fieldAggregation" : {
+        "aggregations" : [ {
+          "field" : "data.at17709237669911771851481532.BAIorderID.string.keyword",
+          "kind" : "UniqueCount"
+        } ],
+        "groups" : [ ],
+        "drill" : false,
+        "_version" : 2
+      },
+      "interval" : {
+        "type" : "FixedIntervalDto",
+        "unit" : "DAY",
+        "value" : 1
+      },
+      "timestampField" : "startTime",
+      "settings" : {
+        "type" : "TrendSettingsLineDto",
+        "displayTitle" : true,
+        "unit" : "Date",
+        "legend" : {
+          "displayLegend" : true,
+          "displayTitle" : true,
+          "title" : "",
+          "position" : "right",
+          "iconShape" : "circle"
+        },
+        "useCustomPalette" : false,
+        "labelYAxis" : "",
+        "stacked" : true,
+        "_version" : 1
+      },
+      "predictionConfig" : {
+        "enabled" : false,
+        "_version" : 2
+      }
+    },
+    "layouts" : [ {
+      "kind" : "SM",
+      "x" : 0.0,
+      "y" : 18.0,
+      "w" : 1.0,
+      "h" : 2.0
+    }, {
+      "kind" : "LG",
+      "x" : 0.0,
+      "y" : 3.0,
+      "w" : 3.0,
+      "h" : 2.0
+    } ],
+    "showAsTable" : false
+  }, {
+    "id" : "698e66b5-2466-4f7e-a31a-0c209febb634",
+    "name" : "Average duration of Warehouse process Part 2 ( Gen shipping label , notify customer , update DB)",
+    "description" : "",
+    "config" : {
+      "type" : "MetricConfigDto",
+      "domain" : {
+        "kind" : "Workflow (BPMN)",
+        "monitoringSourceName" : "Workflow (BPMN)",
+        "id" : "cf940ace-6f92-475b-bf54-bc0e7c9dc18a - 2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d",
+        "name" : "CarrierDeliveryUpdateProcess - 2.0.73",
+        "fields" : [ "processId", "processVersionId" ],
+        "fieldValues" : [ "cf940ace-6f92-475b-bf54-bc0e7c9dc18a", "2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d" ],
+        "timestampField" : "timestamp",
+        "hasSuggestions" : false
+      },
+      "fieldAggregation" : {
+        "aggregations" : [ {
+          "field" : "executionDuration",
+          "kind" : "Average"
+        } ],
+        "groups" : [ ],
+        "drill" : false,
+        "_version" : 2
+      },
+      "settings" : {
+        "type" : "SingleSettingsTextDto",
+        "displayTitle" : true,
+        "unit" : "",
+        "formatters" : [ {
+          "field" : "executionDuration",
+          "format" : "DURATION",
+          "options" : {
+            "type" : "DurationOptionsDto",
+            "input" : "MILLISECOND",
+            "output" : "SECOND"
+          }
+        } ],
+        "useCustomPalette" : false,
+        "_version" : 1
+      },
+      "_version" : 1
+    },
+    "layouts" : [ {
+      "kind" : "SM",
+      "x" : 0.0,
+      "y" : 16.0,
+      "w" : 1.0,
+      "h" : 2.0
+    }, {
+      "kind" : "LG",
+      "x" : 3.0,
+      "y" : 4.0,
+      "w" : 3.0,
+      "h" : 1.0
+    } ],
+    "showAsTable" : false
+  }, {
+    "id" : "0a2a4e0d-3d6e-4d51-a48b-134bef53713a",
+    "name" : "Average duration of Shipment Process- (Transport & Required days Decision , Notify Warehouse , Update DB)",
+    "description" : "",
+    "config" : {
+      "type" : "MetricConfigDto",
+      "domain" : {
+        "kind" : "Workflow (BPMN)",
+        "monitoringSourceName" : "Workflow (BPMN)",
+        "id" : "3eba8973-cd28-46cc-bc58-27da768045eb - 2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d",
+        "name" : "Shipment Process - 2.0.73",
+        "fields" : [ "processId", "processVersionId" ],
+        "fieldValues" : [ "3eba8973-cd28-46cc-bc58-27da768045eb", "2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d" ],
+        "timestampField" : "timestamp",
+        "hasSuggestions" : false
+      },
+      "fieldAggregation" : {
+        "aggregations" : [ {
+          "field" : "executionDuration",
+          "kind" : "Average"
+        } ],
+        "groups" : [ ],
+        "drill" : false,
+        "_version" : 2
+      },
+      "settings" : {
+        "type" : "SingleSettingsTextDto",
+        "displayTitle" : true,
+        "unit" : "",
+        "formatters" : [ {
+          "field" : "executionDuration",
+          "format" : "DURATION",
+          "options" : {
+            "type" : "DurationOptionsDto",
+            "input" : "MILLISECOND",
+            "output" : "SECOND"
+          }
+        } ],
+        "useCustomPalette" : false,
+        "_version" : 1
+      },
+      "_version" : 1
+    },
+    "layouts" : [ {
+      "kind" : "SM",
+      "x" : 0.0,
+      "y" : 12.0,
+      "w" : 1.0,
+      "h" : 2.0
+    }, {
+      "kind" : "LG",
+      "x" : 3.0,
+      "y" : 3.0,
+      "w" : 3.0,
+      "h" : 1.0
+    } ],
+    "showAsTable" : false
+  }, {
+    "id" : "5c551e93-b3cc-49f9-a64a-f2b821b2f8a7",
+    "name" : "Average duration of Carrier process - (Create proof Of Delivery ,notify customer , Update DB)",
+    "description" : "",
+    "config" : {
+      "type" : "MetricConfigDto",
+      "domain" : {
+        "kind" : "Workflow (BPMN)",
+        "monitoringSourceName" : "Workflow (BPMN)",
+        "id" : "65e14f6d-e002-4a1f-9226-8e3c526d9c46 - 2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d",
+        "name" : "Carrier Process - 2.0.73",
+        "fields" : [ "processId", "processVersionId" ],
+        "fieldValues" : [ "65e14f6d-e002-4a1f-9226-8e3c526d9c46", "2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d" ],
+        "timestampField" : "timestamp",
+        "hasSuggestions" : false
+      },
+      "fieldAggregation" : {
+        "aggregations" : [ {
+          "field" : "executionDuration",
+          "kind" : "Average"
+        } ],
+        "groups" : [ ],
+        "drill" : false,
+        "_version" : 2
+      },
+      "settings" : {
+        "type" : "SingleSettingsTextDto",
+        "displayTitle" : true,
+        "unit" : "",
+        "formatters" : [ {
+          "field" : "executionDuration",
+          "format" : "DURATION",
+          "options" : {
+            "type" : "DurationOptionsDto",
+            "input" : "MILLISECOND",
+            "output" : "SECOND"
+          }
+        } ],
+        "useCustomPalette" : false,
+        "_version" : 1
+      },
+      "_version" : 1
+    },
+    "layouts" : [ {
+      "kind" : "SM",
+      "x" : 0.0,
+      "y" : 8.0,
+      "w" : 1.0,
+      "h" : 2.0
+    }, {
+      "kind" : "LG",
+      "x" : 0.0,
+      "y" : 5.0,
+      "w" : 3.0,
+      "h" : 1.0
+    } ],
+    "showAsTable" : false
+  }, {
+    "id" : "49108e42-605f-43e4-9a60-fb0281ea62d2",
+    "name" : "Average duration of Warehouse Process - Part 1 (Inventory check , DB update )",
+    "description" : "",
+    "config" : {
+      "type" : "MetricConfigDto",
+      "domain" : {
+        "kind" : "Workflow (BPMN)",
+        "monitoringSourceName" : "Workflow (BPMN)",
+        "id" : "97ef4638-0bc7-41a2-846c-69a20ec9b4f4 - 2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d",
+        "name" : "Warehouse Process - 2.0.73",
+        "fields" : [ "processId", "processVersionId" ],
+        "fieldValues" : [ "97ef4638-0bc7-41a2-846c-69a20ec9b4f4", "2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d" ],
+        "timestampField" : "timestamp",
+        "hasSuggestions" : false
+      },
+      "fieldAggregation" : {
+        "aggregations" : [ {
+          "field" : "executionDuration",
+          "kind" : "Average"
+        } ],
+        "groups" : [ ],
+        "drill" : false,
+        "_version" : 2
+      },
+      "settings" : {
+        "type" : "SingleSettingsTextDto",
+        "displayTitle" : true,
+        "unit" : "",
+        "formatters" : [ {
+          "field" : "executionDuration",
+          "format" : "DURATION",
+          "options" : {
+            "type" : "DurationOptionsDto",
+            "input" : "MILLISECOND",
+            "output" : "SECOND"
+          }
+        } ],
+        "useCustomPalette" : false,
+        "_version" : 1
+      },
+      "_version" : 1
+    },
+    "layouts" : [ {
+      "kind" : "SM",
+      "x" : 0.0,
+      "y" : 14.0,
+      "w" : 1.0,
+      "h" : 2.0
+    }, {
+      "kind" : "LG",
+      "x" : 3.0,
+      "y" : 5.0,
+      "w" : 3.0,
+      "h" : 1.0
+    } ],
+    "showAsTable" : false
+  }, {
+    "id" : "903e8a88-428a-40b1-b642-c5c578c09153",
+    "name" : "Average duration of database fetch",
+    "description" : "",
+    "config" : {
+      "type" : "MetricConfigDto",
+      "domain" : {
+        "kind" : "Workflow (BPMN)",
+        "monitoringSourceName" : "Workflow (BPMN)",
+        "id" : "e0d1a11a-13a1-4fc7-8d98-b5d2d2ae79e4 - 2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d",
+        "name" : "Shipment BAI Wrapper 2 - 2.0.73",
+        "fields" : [ "processId", "processVersionId" ],
+        "fieldValues" : [ "e0d1a11a-13a1-4fc7-8d98-b5d2d2ae79e4", "2064.20ade2b5-8b2f-440c-9712-21ffe00e3a0d" ],
+        "timestampField" : "timestamp",
+        "hasSuggestions" : false
+      },
+      "fieldAggregation" : {
+        "aggregations" : [ {
+          "field" : "executionDuration",
+          "kind" : "Average"
+        } ],
+        "groups" : [ ],
+        "drill" : false,
+        "_version" : 2
+      },
+      "settings" : {
+        "type" : "SingleSettingsTextDto",
+        "displayTitle" : true,
+        "unit" : "",
+        "formatters" : [ {
+          "field" : "executionDuration",
+          "format" : "DURATION",
+          "options" : {
+            "type" : "DurationOptionsDto",
+            "input" : "MILLISECOND",
+            "output" : "SECOND"
+          }
+        } ],
+        "useCustomPalette" : false,
+        "_version" : 1
+      },
+      "_version" : 1
+    },
+    "layouts" : [ {
+      "kind" : "SM",
+      "x" : 0.0,
+      "y" : 10.0,
+      "w" : 1.0,
+      "h" : 2.0
+    }, {
+      "kind" : "LG",
+      "x" : 0.0,
+      "y" : 6.0,
+      "w" : 6.0,
+      "h" : 1.0
+    } ],
+    "showAsTable" : false
+  } ],
+  "timeWindow" : {
+    "type" : "NoTimeWindowDto"
+  },
+  "creation" : "2026-09-17T04:28:08.808693730Z",
+  "lastUpdate" : "2026-10-25T04:22:22.194660516Z",
+  "goalsLayout" : [ ],
+  "_dashboardVersion" : 5
+}

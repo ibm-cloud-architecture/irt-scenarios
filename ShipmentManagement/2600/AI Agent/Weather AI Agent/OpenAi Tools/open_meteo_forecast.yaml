@@ -1,0 +1,199 @@
+openapi: 3.0.3
+
+info:
+  title: Open-Meteo Delivery Weather Forecast Tool
+  version: 1.0.0
+  description: >
+    Retrieves daily precipitation, snowfall, and maximum wind speed for carrier
+    delivery-confidence evaluation.
+
+servers:
+  - url: https://api.open-meteo.com
+
+paths:
+  /v1/forecast:
+    get:
+      operationId: get_forecast
+      summary: Get daily delivery weather forecast
+      description: |-
+        Use this tool to retrieve the daily weather forecast for carrier delivery
+        confidence evaluation.
+
+        Call this tool only after the Get coordinates and timezone for a city tool
+        has returned an unambiguous latitude, longitude, and IANA timezone.
+
+        Use:
+
+        - start_date = the exact start date supplied by the user
+        - end_date = the exact end date supplied by the user
+        - latitude = latitude returned by the location tool
+        - longitude = longitude returned by the location tool
+        - timezone = timezone returned by the location tool
+        - daily = precipitation_sum,snowfall_sum,wind_speed_10m_max
+        - wind_speed_unit = kmh
+
+        The daily arrays are aligned by index. Values at the same array index
+        belong to the same date.
+
+        Call this tool only once for each unique combination of parameters.
+
+        Never call this tool when latitude, longitude, timezone, start date, or
+        end date is missing.
+
+        Never estimate, simulate, assume, or invent weather values.
+
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          description: |-
+            Latitude returned by the Get coordinates and timezone for a city
+            tool. Do not estimate or infer this value.
+          schema:
+            type: number
+            format: double
+
+        - name: longitude
+          in: query
+          required: true
+          description: |-
+            Longitude returned by the Get coordinates and timezone for a city
+            tool. Use the longitude from the same location result as the
+            latitude and timezone.
+          schema:
+            type: number
+            format: double
+
+        - name: timezone
+          in: query
+          required: true
+          description: |-
+            IANA timezone returned by the Get coordinates and timezone for a
+            city tool, such as America/Toronto. Use the timezone from the same
+            location result as the latitude and longitude.
+          schema:
+            type: string
+          example: America/Toronto
+
+        - name: start_date
+          in: query
+          required: true
+          description: |-
+            Exact inclusive forecast start date supplied by the user. The value
+            must use YYYY-MM-DD format. Do not infer or modify the date.
+          schema:
+            type: string
+            format: date
+          example: "2026-09-15"
+
+        - name: end_date
+          in: query
+          required: true
+          description: |-
+            Exact inclusive forecast end date supplied by the user. The value
+            must use YYYY-MM-DD format. Do not infer or modify the date.
+          schema:
+            type: string
+            format: date
+          example: "2026-09-18"
+
+        - name: daily
+          in: query
+          required: true
+          description: |-
+            Comma-separated daily forecast fields. Always use exactly:
+            precipitation_sum,snowfall_sum,wind_speed_10m_max
+          schema:
+            type: string
+            default: precipitation_sum,snowfall_sum,wind_speed_10m_max
+            enum:
+              - precipitation_sum,snowfall_sum,wind_speed_10m_max
+
+        - name: wind_speed_unit
+          in: query
+          required: true
+          description: |-
+            Wind-speed measurement unit. Always use kmh so that maximum wind
+            speed is returned in kilometres per hour.
+          schema:
+            type: string
+            enum:
+              - kmh
+            default: kmh
+
+      responses:
+        "200":
+          description: |-
+            Daily forecast arrays aligned by index. Values at the same index in
+            daily.time, daily.precipitation_sum, daily.snowfall_sum, and
+            daily.wind_speed_10m_max describe the same forecast date.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  latitude:
+                    type: number
+                    format: double
+
+                  longitude:
+                    type: number
+                    format: double
+
+                  timezone:
+                    type: string
+
+                  daily_units:
+                    type: object
+                    properties:
+                      time:
+                        type: string
+                      precipitation_sum:
+                        type: string
+                      snowfall_sum:
+                        type: string
+                      wind_speed_10m_max:
+                        type: string
+                    additionalProperties:
+                      type: string
+
+                  daily:
+                    type: object
+                    properties:
+                      time:
+                        type: array
+                        description: Forecast dates in chronological order.
+                        items:
+                          type: string
+                          format: date
+
+                      precipitation_sum:
+                        type: array
+                        description: Daily precipitation totals in millimetres.
+                        items:
+                          type: number
+
+                      snowfall_sum:
+                        type: array
+                        description: Daily snowfall totals in centimetres.
+                        items:
+                          type: number
+
+                      wind_speed_10m_max:
+                        type: array
+                        description: Daily maximum 10-metre wind speed in km/h.
+                        items:
+                          type: number
+
+                    required:
+                      - time
+                      - precipitation_sum
+                      - snowfall_sum
+                      - wind_speed_10m_max
+
+                required:
+                  - latitude
+                  - longitude
+                  - timezone
+                  - daily_units
+                  - daily

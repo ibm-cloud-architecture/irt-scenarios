@@ -1,0 +1,130 @@
+openapi: 3.0.3
+
+info:
+  title: Open-Meteo City Geocoding Tool
+  version: 1.0.0
+  description: >
+    Resolves a user-provided city name or address into latitude, longitude,
+    and IANA timezone before a weather forecast request.
+
+servers:
+  - url: https://geocoding-api.open-meteo.com
+
+paths:
+  /v1/search:
+    get:
+      operationId: get_city_coordinates
+      summary: Get coordinates and timezone for a city
+      description: |-
+        Use this tool before calling the daily weather forecast tool.
+
+        The user's location input may be a city name or a complete street
+        address.
+
+        If the input is a complete address and the city is explicitly present,
+        remove the street number, street name, unit, suite, building, and postal
+        code. Send only the city, province or state, and country to this tool.
+
+        Example:
+
+        User input:
+        123 Queen St, Mississauga, Ontario, Canada
+
+        Value sent to this tool:
+        Mississauga, Ontario, Canada
+
+        Do not reject a complete address when the city is clearly included in it.
+
+        Use the best unambiguous matching result. Read latitude, longitude, and
+        timezone from the same result. Never combine values from separate
+        results.
+
+        If multiple plausible locations remain, ask the user for the country,
+        province, or state.
+
+        If the city cannot be identified from the provided input, ask the user
+        to provide the city.
+
+        Call this tool only once for each unique normalized location.
+
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: |-
+            The normalized city or municipality to search for.
+
+            Include the province or state and country when available.
+
+            If the user provides a complete street address and the city is
+            explicitly present, remove the street number, street name, unit,
+            suite, building, and postal code before setting this parameter.
+
+            Example:
+            Mississauga, Ontario, Canada
+          schema:
+            type: string
+
+        - name: count
+          in: query
+          required: false
+          description: Maximum number of matching locations to return.
+          schema:
+            type: integer
+            default: 5
+            minimum: 1
+            maximum: 10
+
+        - name: language
+          in: query
+          required: false
+          description: Language used for the response.
+          schema:
+            type: string
+            default: en
+
+        - name: format
+          in: query
+          required: false
+          description: Response format.
+          schema:
+            type: string
+            enum:
+              - json
+            default: json
+
+      responses:
+        "200":
+          description: Matching locations with coordinates and timezone.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    description: Locations matching the normalized city search.
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        latitude:
+                          type: number
+                          format: double
+                        longitude:
+                          type: number
+                          format: double
+                        timezone:
+                          type: string
+                        country:
+                          type: string
+                        admin1:
+                          type: string
+                      required:
+                        - name
+                        - latitude
+                        - longitude
+                        - timezone

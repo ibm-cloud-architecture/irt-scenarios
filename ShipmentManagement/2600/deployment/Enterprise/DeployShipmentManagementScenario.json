@@ -1,0 +1,1015 @@
+{
+	"comment": "Contains the steps required to deploy the Shipment Management scenario",
+	"fileVersion": "1.0.2",
+	"fileLocation": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/deployment/Enterprise/DeployShipmentManagementScenario.json",
+	"requiredToolVersion": ">=1.1.136 <1.2.0",
+	"requiredCP4BAVersion": ">=26.0.0 <26.1.0",
+	"requiredCP4BAPattern": "Enterprise",
+	"actions": [
+		{
+			"CONTAINER": {
+				"comment": "This container wraps all actions to deploy the Shipment Management scenario",
+				"enabled": "true",
+				"description": "Deploy Scenario Shipment Management",
+				"actions": [
+					{
+						"OCP": {
+							"enabled": "true",
+							"description": "Grant 'Deployed Decision Manager' role to admin user",
+							"subActions": [
+								{
+									"PLATFORM_USERMGT": {
+										"enabled": "true",
+										"description": "Update Zen roles for admin user",
+										"entities": [
+											{
+												"action": "update",
+												"name": "$$(cp4baAdminUsrLower)$$",
+												"roles": [
+													"Deployed Decision Manager"
+												]
+											}
+										]
+									}
+								}
+							]
+						}
+					},
+					{
+						"ADS": {
+							"enabled": "$$(deployPart_ADS)$$",
+							"description": "ADS1 - Create and fully configure ADS project 'Approval Plan' including Git, Deploy, & Publish",
+							"decisionsPrjDisplayName": "$$(ApprovalPlanDecisionsPrjDisplayName|default=Approval Plan)$$",
+							"relativeBasePath": "Automation Decision Services",
+							"maxBASQueryRetries": 5,
+							"subActions": [
+								{
+									"DOWNLOADRESOURCES": {
+										"enabled": "$$(enableArtifactDownloadFromGit)$$",
+										"description": "Download resources required for ADS",
+										"name": "Download ADS file",
+										"token": "$(gitHubSolutionDownloadToken)$",
+										"replaceExistingFiles": true,
+										"files": [
+											{
+												"url": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/Decision/Approval%20Plan.zip"
+											}
+										]
+									}
+								},
+								{
+									"TESTCONNECTION": {
+										"comment": "Used when internal gitea is available and no external git server is specified",
+										"enabled": "$$(isGiteaAvailable)$$ && $$(ISNOTSET(adsGitServerUrl))$$",
+										"description": "Test ADS capability"
+									}
+								},
+								{
+									"TESTCONNECTION": {
+										"comment": "Used when no internal gitea is available or external git server is specified",
+										"enabled": "$$(!isGiteaAvailable)$$ || $$(ISSET(adsGitServerUrl))$$",
+										"description": "Test ADS capability",
+										"gitServerUrl": "$$(adsGitServerUrl|default=)$$",
+										"userName": "$$(adsGitUserName|default=)$$",
+										"apiKey": "$$(adsGitRepoAPIKey|default=)$$"
+									}
+								},
+								{
+									"CHECKPROJECTISCONNECTEDTOGIT": {
+										"comment": "Used when no ADS auto connect to Git is configured and no internal gitea is available or external git server is specified",
+										"enabled": "$$(!isADSAutoConnectToGit)$$ && ($$(!isGiteaAvailable)$$ || $$(ISSET(adsGitServerUrl))$$)",
+										"description": "Check if ADS decision project already exists and if it is already connected to Git"
+									}
+								},
+								{
+									"CREATEGITREPO": {
+										"comment": "Used when internal gitea is available, no external git server is specified, and ADS auto connect to Git is not configured",
+										"enabled": "$$(isGiteaAvailable)$$ && $$(ISNOTSET(adsGitServerUrl))$$ && $$(!isADSAutoConnectToGit)$$",
+										"description": "Create Git org and repo in internal Gitea",
+										"orgName": "$$(adsGitOrg)$$",
+										"repoName": "$$(adsGitRepoApprovalPlan)$$",
+										"repoDescription": "$$(adsGitRepoDescriptionApprovalPlan)$$"
+									}
+								},
+								{
+									"CREATEGITREPO": {
+										"comment": "Used when no ADS auto connect to Git is configured and no internal gitea is available or external git server is specified",
+										"enabled": "$$(!isADSAutoConnectToGit)$$ && ($$(!isGiteaAvailable)$$ || $$(ISSET(adsGitServerUrl))$$) && $$(connectWithGit|default=true)$$",
+										"description": "Create Git repo in external Git repository",
+										"gitServerUrl": "$$(adsGitServerUrl|default=)$$",
+										"userName": "$$(adsGitUserName|default=)$$",
+										"apiKey": "$$(adsGitRepoAPIKey|default=)$$",
+										"orgName": "$$(adsGitOrg)$$",
+										"repoName": "$$(adsGitRepoApprovalPlan)$$",
+										"repoDescription": "$$(adsGitRepoDescriptionApprovalPlan)$$"
+									}
+								},
+								{
+									"CREATEPROJECT": {
+										"enabled": "true",
+										"description": "Create ADS project 'Approval Plan' in Studio",
+										"name": "Approval Plan2"
+									}
+								},
+								{
+									"CONNECTWITHGIT": {
+										"comment": "Used when internal gitea is available, no external git server is specified, and ADS auto connect to Git is not configured",
+										"enabled": "$$(isGiteaAvailable)$$ && $$(ISNOTSET(adsGitServerUrl))$$ && $$(!isADSAutoConnectToGit)$$",
+										"description": "Connect ADS project to internal gitea repository",
+										"gitRepoUrl": "!GITREPOURL!",
+										"checkConnection": "true",
+										"egressNetworkPolicies": [
+											"ADSGitServiceEgress_NetworkPolicy.json"
+										],
+										"tryFixingLocalGiteaCertificateIssue": "true",
+										"pollForTrustedCertificateUpdate": "true",
+										"pollForTrustedCertificateUpdateMaxTimes": "12",
+										"pollForTrustedCertificateUpdatePollDelayInMinutes": "5",
+										"restartCP4BAOperator": "true",
+										"cp4baOperatorRestartMaxRepeat": "12",
+										"cp4baOperatorRestartSleepSeconds": "5"
+									}
+								},
+								{
+									"CONNECTWITHGIT": {
+										"comment": "Used when no ADS auto connect to Git is configured and no internal gitea is available or external git server is specified",
+										"enabled": "$$(!isADSAutoConnectToGit)$$ && ($$(!isGiteaAvailable)$$ || $$(ISSET(adsGitServerUrl))$$) && $$(connectWithGit|default=true)$$",
+										"description": "Connect ADS project to external git repository",
+										"gitRepoUrl": "!GITREPOURL!",
+										"gitApiKey": "$$(adsGitRepoAPIKey|default=)$$"
+									}
+								},
+								{
+									"IMPORTDECISIONSERVICES": {
+										"enabled": "true",
+										"description": "Import 'Approval Plan' decision service",
+										"decisionServiceName": "Approval Plan",
+										"upgradeIfRequired": true,
+										"file": "Approval Plan.zip",
+										"maxImportCompletionPolls": 12,
+										"delayBetweenImportCompletionPolls": 10
+									}
+								},
+								{
+									"COMMITCHANGES": {
+										"enabled": "true",
+										"description": "Commit changes in ADS project to git",
+										"commitMessage": "Initial automatic setup of Approval Plan project",
+										"maxCommitCompletionPolls": 20,
+										"delayBetweenCommitCompletionPolls": 10
+									}
+								},
+								{
+									"VERSIONPROJECT": {
+										"enabled": "true",
+										"description": "Create a new version of the 'Approval Plan' ADS project",
+										"versionDescription": "Initial version of the Approval Plan Decision Solution",
+										"version": "1.0.0"
+									}
+								},
+								{
+									"DEPLOYPROJECT": {
+										"enabled": "true",
+										"description": "Deploy the version to the runtime",
+										"decisionServiceName": "Approval Plan",
+										"version": "1.0.0",
+										"maxDeployCompletionPolls": 60,
+										"delayBetweenDeployCompletionPolls": 5
+									}
+								},
+								{
+									"PUBLISHAUTOMATIONSERVICES": {
+										"enabled": "true",
+										"description": "Publish the ADS decision service as an automation service",
+										"skipRemainingSubactionOnFailure": "false",
+										"snapshot": "1.0.0",
+										"maxPublishCompletionPolls": "$$(publishAS_maxPublishCompletionPolls)$$",
+										"delayBetweenPublishCompletionPolls": "$$(publishAS_delayBetweenPublishCompletionPolls)$$"
+									}
+								}
+							]
+						}
+					},
+					{
+						"ADS": {
+							"enabled": "$$(deployPart_ADS)$$",
+							"description": "ADS2 - Create and fully configure ADS project 'Carrier Risk Automation' including Git, Deploy, & Publish",
+							"decisionsPrjDisplayName": "$$(CarrierRiskAutomationDecisionsPrjDisplayName|default=Carrier Risk Automation)$$",
+							"relativeBasePath": "Automation Decision Services",
+							"maxBASQueryRetries": 5,
+							"subActions": [
+								{
+									"DOWNLOADRESOURCES": {
+										"enabled": "$$(enableArtifactDownloadFromGit)$$",
+										"description": "Download resources required for ADS",
+										"name": "Download ADS file",
+										"token": "$(gitHubSolutionDownloadToken)$",
+										"replaceExistingFiles": true,
+										"files": [
+											{
+												"url": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/Decision/Carrier%20Delivery%20Risk%20Decision.zip"
+											},
+											{
+												"name": "carrier_delivery_failure_scorecard.pmml",
+												"url": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/Documents",
+												"retrievalMode": "latest",
+												"matchStr": "carrier_delivery_failure_scorecard.*\\.pmml"
+											}
+										]
+									}
+								},
+								{
+									"TESTCONNECTION": {
+										"comment": "Used when internal gitea is available and no external git server is specified",
+										"enabled": "$$(isGiteaAvailable)$$ && $$(ISNOTSET(adsGitServerUrl))$$",
+										"description": "Test ADS capability"
+									}
+								},
+								{
+									"TESTCONNECTION": {
+										"comment": "Used when no internal gitea is available or external git server is specified",
+										"enabled": "$$(!isGiteaAvailable)$$ || $$(ISSET(adsGitServerUrl))$$",
+										"description": "Test ADS capability",
+										"gitServerUrl": "$$(adsGitServerUrl|default=)$$",
+										"userName": "$$(adsGitUserName|default=)$$",
+										"apiKey": "$$(adsGitRepoAPIKey|default=)$$"
+									}
+								},
+								{
+									"CHECKPROJECTISCONNECTEDTOGIT": {
+										"comment": "Used when no ADS auto connect to Git is configured and no internal gitea is available or external git server is specified",
+										"enabled": "$$(!isADSAutoConnectToGit)$$ && ($$(!isGiteaAvailable)$$ || $$(ISSET(adsGitServerUrl))$$)",
+										"description": "Check if ADS decision project already exists and if it is already connected to Git"
+									}
+								},
+								{
+									"CREATEGITREPO": {
+										"comment": "Used when internal gitea is available, no external git server is specified, and ADS auto connect to Git is not configured",
+										"enabled": "$$(isGiteaAvailable)$$ && $$(ISNOTSET(adsGitServerUrl))$$ && $$(!isADSAutoConnectToGit)$$",
+										"description": "Create Git org and repo in internal Gitea",
+										"orgName": "$$(adsGitOrg)$$",
+										"repoName": "$$(adsGitRepoCarrierRisk)$$",
+										"repoDescription": "$$(adsGitRepoDescriptionCarrierRisk)$$"
+									}
+								},
+								{
+									"CREATEGITREPO": {
+										"comment": "Used when no ADS auto connect to Git is configured and no internal gitea is available or external git server is specified",
+										"enabled": "$$(!isADSAutoConnectToGit)$$ && ($$(!isGiteaAvailable)$$ || $$(ISSET(adsGitServerUrl))$$) && $$(connectWithGit|default=true)$$",
+										"description": "Create Git repo in external Git repository",
+										"gitServerUrl": "$$(adsGitServerUrl|default=)$$",
+										"userName": "$$(adsGitUserName|default=)$$",
+										"apiKey": "$$(adsGitRepoAPIKey|default=)$$",
+										"orgName": "$$(adsGitOrg)$$",
+										"repoName": "$$(adsGitRepoCarrierRisk)$$",
+										"repoDescription": "$$(adsGitRepoDescriptionCarrierRisk)$$"
+									}
+								},
+								{
+									"CREATEPROJECT": {
+										"enabled": "true",
+										"description": "Create ADS project 'Carrier Risk Automation' in Studio",
+										"name": "Carrier Risk Automation2"
+									}
+								},
+								{
+									"CONNECTWITHGIT": {
+										"comment": "Used when internal gitea is available, no external git server is specified, and ADS auto connect to Git is not configured",
+										"enabled": "$$(isGiteaAvailable)$$ && $$(ISNOTSET(adsGitServerUrl))$$ && $$(!isADSAutoConnectToGit)$$",
+										"description": "Connect ADS project to internal gitea repository",
+										"gitRepoUrl": "!GITREPOURL!",
+										"checkConnection": "true",
+										"egressNetworkPolicies": [
+											"ADSGitServiceEgress_NetworkPolicy.json"
+										],
+										"tryFixingLocalGiteaCertificateIssue": "true",
+										"pollForTrustedCertificateUpdate": "true",
+										"pollForTrustedCertificateUpdateMaxTimes": "12",
+										"pollForTrustedCertificateUpdatePollDelayInMinutes": "5",
+										"restartCP4BAOperator": "true",
+										"cp4baOperatorRestartMaxRepeat": "12",
+										"cp4baOperatorRestartSleepSeconds": "5"
+									}
+								},
+								{
+									"CONNECTWITHGIT": {
+										"comment": "Used when no ADS auto connect to Git is configured and no internal gitea is available or external git server is specified",
+										"enabled": "$$(!isADSAutoConnectToGit)$$ && ($$(!isGiteaAvailable)$$ || $$(ISSET(adsGitServerUrl))$$) && $$(connectWithGit|default=true)$$",
+										"description": "Connect ADS project to external git repository",
+										"gitRepoUrl": "!GITREPOURL!",
+										"gitApiKey": "$$(adsGitRepoAPIKey|default=)$$"
+									}
+								},
+								{
+									"IMPORTDECISIONSERVICES": {
+										"enabled": "true",
+										"description": "Import 'Carrier Delivery Risk Decision' decision service",
+										"decisionServiceName": "Carrier Delivery Risk Decision",
+										"upgradeIfRequired": true,
+										"file": "Carrier Delivery Risk Decision.zip",
+										"maxImportCompletionPolls": 12,
+										"delayBetweenImportCompletionPolls": 10
+									}
+								},
+								{
+									"ADDMLPROVIDERTOPROJECT": {
+										"enabled": "true",
+										"description": "Add 'Embedded Machine Learning (EML)' ML Provider to Project",
+										"decisionsPrjDisplayName": "PMML Embedded Machine Learning Provider for ",
+										"mlProviderDisplayName": "Embedded Carrier PMML Provider",
+										"mlProviderType": "EML",
+										"mlProviderDescription": "Embedded PMML Provider for Carrier Delivery Risk Decision",
+										"maxRetries": 3
+									}
+								},
+								{
+									"ADDMLPRCONNECTPROJECTTOMLPROVIDERV2": {
+										"enabled": "true",
+										"description": "Connect predictive model to ML Provider",
+										"decisionServiceName": "Carrier Delivery Risk Decision",
+										"predictiveModelName": "Carrier Delivery Failure Score",
+										"mlProviderDisplayName": "Embedded Carrier PMML Provider",
+										"mlProviderType": "EML",
+										"predictiveModelParameters": {
+											"pmmlFileName": "carrier_delivery_failure_scorecard.pmml"
+										},
+										"maxRetries": 3
+									}
+								},
+								{
+									"COMMITCHANGES": {
+										"enabled": "true",
+										"description": "Commit changes in ADS project to git",
+										"commitMessage": "Initial automatic setup of Approval Plan project",
+										"maxCommitCompletionPolls": 20,
+										"delayBetweenCommitCompletionPolls": 10
+									}
+								},
+								{
+									"VERSIONPROJECT": {
+										"enabled": "true",
+										"description": "Create a new version of the 'Carrier Risk Automation' ADS project",
+										"versionDescription": "Initial version of the Approval Plan Decision Solution",
+										"version": "1.0.0"
+									}
+								},
+								{
+									"DEPLOYPROJECT": {
+										"enabled": "true",
+										"description": "Deploy the version to the runtime",
+										"decisionServiceName": "Carrier Delivery Risk Decision",
+										"version": "1.0.0",
+										"maxDeployCompletionPolls": 60,
+										"delayBetweenDeployCompletionPolls": 5
+									}
+								},
+								{
+									"PUBLISHAUTOMATIONSERVICES": {
+										"enabled": "true",
+										"description": "Publish the ADS decision service as an automation service",
+										"skipRemainingSubactionOnFailure": "false",
+										"snapshot": "1.0.0",
+										"maxPublishCompletionPolls": "$$(publishAS_maxPublishCompletionPolls)$$",
+										"delayBetweenPublishCompletionPolls": "$$(publishAS_delayBetweenPublishCompletionPolls)$$"
+									}
+								}
+							]
+						}
+					},
+					{
+						"WF": {
+							"comment": "Import single WF TWX",
+							"enabled": "$$(deployPart_WF)$$",
+							"description": "WF - Deploy the Shipment Management System solution",
+							"relativeBasePath": "Business Automation Workflow",
+							"subActions": [
+								{
+									"DOWNLOADRESOURCES": {
+										"enabled": "$$(enableArtifactDownloadFromGit)$$",
+										"description": "Download resources required for WF",
+										"token": "$(gitHubSolutionDownloadToken)$",
+										"replaceExistingFiles": true,
+										"files": [
+											{
+												"name": "Shipment_Management_System.twx",
+												"url": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/BAW",
+												"retrievalMode": "latest",
+												"matchStr": "Shipment_Management_System.*\\.twx"
+											}
+										]
+									}
+								},
+								{
+									"EXTRACTTWXPROJECTINFO": {
+										"enabled": "true",
+										"description": "Extract the project information from the Shipment Management System TWX file",
+										"sourceTwxFile": "Shipment_Management_System.twx",
+										"globalContextVariableName": "scenarioPAInfo"
+									}
+								},
+								{
+									"PATCHSOLUTION": {
+										"enabled": "true",
+										"description": "Patch the teams in the TWX",
+										"sourceTwxFile": "!twxFileName!",
+										"wxoInstanceURL": "$(wxoInstanceURL)$",
+										"wxoAPIKey": "$(wxoAPIKey)$",
+										"environmentVariables": [
+											{
+												"EmailID": "$$(wf_cp_emailIDInternal)$$"
+											},
+											{
+												"EmailPassword": "§IF($$(ISSET(wf_cp_emailPassword))$$)§($$(wf_cp_emailPassword|default=)$$)§ELSEIF($(isLocalMailAvailable)$)§()§ELSE§(§FAIL(Gmail app key not provided but local mail server also not available))ENDIF§"
+											},
+											{
+												"EmailSmtpHost": "§IF($(isLocalMailAvailable)$ && $$(ISNOTSET(wf_cp_emailPassword))$$)§($(localSmtpHost|default=)$)§ELSE§(smtp.gmail.com)ENDIF§"
+											},
+											{
+												"EmailSmtpPort": "§IF($(isLocalMailAvailable)$ && $$(ISNOTSET(wf_cp_emailPassword))$$)§($(localSmtpPort|default=)$)§ELSE§(587)ENDIF§"
+											},
+											{
+												"CONTENT_SERVICES_SERVER": {
+													"serverType": "ECM",
+													"host": "$(cpdUrlPrefix)$.$(ocpBaseUrl)$",
+													"port": "443",
+													"secureserver": true,
+													"repository": "$(CPETargetOS)$",
+													"contextpath": "/cmis/openfncmis_wlp/services",
+													"username": "$(cp4baAdminUsr)$",
+													"password": "$(cp4baAdminPwd)$"
+												}
+											}
+										],
+										"filePatchInfos": [
+											{
+												"name": "Manage Inventory_1",
+												"type": "process",
+												"aiAgentMappings": {
+													"invocationAPIKey": "$(wxoAPIKey)$",
+													"environmentName": "$(wxoAgentEnvironment)$",
+													"instanceUrl": "$(wxoInstanceURL)$"
+												}
+											},
+											{
+												"name": "Sale Forecast_1",
+												"type": "process",
+												"aiAgentMappings": {
+													"invocationAPIKey": "$(wxoAPIKey)$",
+													"environmentName": "$(wxoAgentEnvironment)$",
+													"instanceUrl": "$(wxoInstanceURL)$"
+												}
+											},
+											{
+												"name": "weather_agent_1",
+												"type": "process",
+												"aiAgentMappings": {
+													"invocationAPIKey": "$(wxoAPIKey)$",
+													"environmentName": "$(wxoAgentEnvironment)$",
+													"instanceUrl": "$(wxoInstanceURL)$"
+												}
+											},
+											{
+												"name": "Carrier Delivery Risk Decision",
+												"type": "process",
+												"automationServiceMappings": {
+													"project": {
+														"ceadmin/Carrier-Risk-Automation": "$$(cp4baAdminUsrLower)$$/Carrier-Risk-Automation"
+													},
+													"url": {
+														"https://icp4adeploy-ads-runtime-service.prod.svc.cluster.local:9443/ads/runtime/api/v1/deploymentSpaces/embedded/decisions/ceadmin%2Fcarrier_risk_automation%2Fcarrier_delivery_risk_decision%2FcarrierDeliveryRiskDecisionDecisionService%2F3-2026-04-21T17%3A02%3A30.222Z/operations": "https://icp4adeploy-ads-runtime-service.prod.svc.cluster.local:9443/ads/runtime/api/v1/deploymentSpaces/embedded/decisions/$$(cp4baAdminUsrLower)$$%2Fcarrier_risk_automation%2Fcarrier_delivery_risk_decision%2FcarrierDeliveryRiskDecisionDecisionService%2F3-2026-04-21T17%3A02%3A30.222Z/operations"
+													}
+												}
+											},
+											{
+												"name": "Approval Plan",
+												"type": "process",
+												"automationServiceMappings": {
+													"project": {
+														"ceadmin/Approval-Plan": "$$(cp4baAdminUsrLower)$$/Approval-Plan"
+													},
+													"url": {
+														"https://icp4adeploy-ads-runtime-service.prod.svc.cluster.local:9443/ads/runtime/api/v1/deploymentSpaces/embedded/decisions/ceadmin%2Fapproval_plan%2Fapproval_plan%2FapprovalPlanDecisionService%2F1.0.0-2026-02-17T20%3A11%3A00.032Z/operations": "https://icp4adeploy-ads-runtime-service.prod.svc.cluster.local:9443/ads/runtime/api/v1/deploymentSpaces/embedded/decisions/$$(cp4baAdminUsrLower)$$%2Fapproval_plan%2Fapproval_plan%2FapprovalPlanDecisionService%2F1.0.0-2026-02-17T20%3A11%3A00.032Z/operations"
+													}
+												}
+											}
+										]
+									}
+								},
+								{
+									"INSTALLSOLUTION": {
+										"enabled": "true",
+										"description": "Install the Shipment Management System WF solution",
+										"twxFile": "!patchedTWXFileName!",
+										"paDisplayName": "!projectDisplayName!",
+										"paAcronym": "!projectAcronym!",
+										"paSnapshot": "!snapshotAcronym!",
+										"allowPAAcronymChange": false,
+										"allowTKAcronymChange": false,
+										"checkForUpdatedEnvironmentVariables": false
+									}
+								},
+								{
+									"PUBLISHAUTOMATIONSERVICES": {
+										"enabled": "true",
+										"description": "Publish the Shipment Management System Scenario WF Automation Service",
+										"solutionName": "!solutionName!",
+										"solutionAcronym": "!solutionAcronym!",
+										"snapshot": "!snapshotAcronym!",
+										"maxBASQueryRetries": 5,
+										"maxPublishCompletionPolls": "$$(publishAS_maxPublishCompletionPolls)$$",
+										"delayBetweenPublishCompletionPolls": "$$(publishAS_delayBetweenPublishCompletionPolls)$$"
+									}
+								},
+								{
+									"EXECUTEAUTOMATIONSERVICE": {
+										"enabled": "true",
+										"description": "Execute Automation Service 'CreateDataBase' with operation 'createDataBase' in Shipment Management System",
+										"invocations": [
+											{
+												"paName": "!projectDisplayName!",
+												"paAcronym": "!projectAcronym!",
+												"paSnapshot": "!snapshotAcronym!",
+												"automationServiceName": "CreateDataBase",
+												"operationName": "createDataBase",
+												"inputData": {}
+											}
+										]
+									}
+								}
+							]
+						}
+					},
+					{
+						"FNCM": {
+							"comment": "Upload Shipment Management solution documents",
+							"enabled": "$$(deployPart_CPE)$$",
+							"description": "CPE - Create 'Shipment ops' folder and three sub-folders and upload documents",
+							"replaceExistingDocuments": false,
+							"objectStoreName": "$(CPETargetOS)$",
+							"relativeBasePath": "FileNet Content Manager",
+							"subActions": [
+								{
+									"DOWNLOADRESOURCES": {
+										"enabled": "$$(enableArtifactDownloadFromGit)$$",
+										"description": "Download resources required for FNCM",
+										"name": "Download FNCM files",
+										"token": "$(gitHubSolutionDownloadToken)$",
+										"replaceExistingFiles": true,
+										"files": [
+											{
+												"url": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/templates/PO_Receipt.pdf"
+											},
+											{
+												"url": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/templates/Shipping_Label.pdf"
+											},
+											{
+												"url": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/templates/proof_of_delivery.pdf"
+											},
+											{
+												"url": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/Documents/default.jpeg"
+											}
+										]
+									}
+								},
+								{
+									"TESTCONNECTION": {
+										"enabled": "true",
+										"description": "Test FNCM availability"
+									}
+								},
+								{
+									"CREATEFOLDER": {
+										"enabled": "true",
+										"description": "Create 'Shipment ops' folder in root",
+										"parentFolderPath": "/",
+										"folderName": "Shipment ops",
+										"folderClassSymbolicName": "Folder"
+									}
+								},
+								{
+									"CREATEFOLDER": {
+										"enabled": "true",
+										"description": "Create 'Templates' folder in 'Shipment ops' folder",
+										"parentFolderPath": "/Shipment ops",
+										"folderName": "Templates",
+										"folderClassSymbolicName": "Folder"
+									}
+								},
+								{
+									"CREATEFOLDER": {
+										"enabled": "true",
+										"description": "Create 'AppData' folder in 'Shipment ops' folder",
+										"parentFolderPath": "/Shipment ops",
+										"folderName": "AppData",
+										"folderClassSymbolicName": "Folder"
+									}
+								},
+								{
+									"CREATEFOLDER": {
+										"enabled": "true",
+										"description": "Create 'logo' folder in 'Shipment ops/AppData' folder",
+										"parentFolderPath": "/Shipment ops/AppData",
+										"folderName": "logo",
+										"folderClassSymbolicName": "Folder"
+									}
+								},
+								{
+									"CREATEDOCUMENT": {
+										"enabled": "true",
+										"description": "Create 'PO_Receipt' doc in Templates folder",
+										"replaceExistingDocument": false,
+										"folderName": "/Shipment ops/Templates",
+										"docClass": "Document",
+										"docTitle": "PO_Receipt.pdf",
+										"file": "PO_Receipt.pdf",
+										"fileContentType": "application/pdf"
+									}
+								},
+								{
+									"CREATEDOCUMENT": {
+										"enabled": "true",
+										"description": "Create 'PO_Receipt' doc in Templates folder",
+										"replaceExistingDocument": false,
+										"folderName": "/Shipment ops/Templates",
+										"docClass": "Document",
+										"docTitle": "proof_of_delivery.pdf",
+										"file": "proof_of_delivery.pdf",
+										"fileContentType": "application/pdf"
+									}
+								},
+								{
+									"CREATEDOCUMENT": {
+										"enabled": "true",
+										"description": "Create 'PO_Receipt' doc in Templates folder",
+										"replaceExistingDocument": false,
+										"folderName": "/Shipment ops/Templates",
+										"docClass": "Document",
+										"docTitle": "Shipping_Label.pdf",
+										"file": "Shipping_Label.pdf",
+										"fileContentType": "application/pdf"
+									}
+								},
+								{
+									"CREATEDOCUMENT": {
+										"enabled": "true",
+										"description": "Create 'PO_Receipt' doc in Templates folder",
+										"replaceExistingDocument": false,
+										"folderName": "/Shipment ops/AppData/logo",
+										"docClass": "Document",
+										"docTitle": "default.jpeg",
+										"file": "default.jpeg",
+										"fileContentType": "image/jpeg"
+									}
+								}
+							]
+						}
+					},
+					{
+						"BAA": {
+							"enabled": "$$(deployPart_BAA)$$",
+							"description": "BAA - Import Shipment Management apps into Studio",
+							"relativeBasePath": "Business Automation Application",
+							"subActions": [
+								{
+									"DOWNLOADRESOURCES": {
+										"enabled": "$$(enableArtifactDownloadFromGit)$$",
+										"description": "Download resources required for the Apps lab",
+										"token": "$(gitHubSolutionDownloadToken)$",
+										"replaceExistingFiles": true,
+										"files": [
+											{
+												"name": "Carrier_Application.twx",
+												"url": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/BAA",
+												"retrievalMode": "latest",
+												"matchStr": "Carrier_Application.*\\.twx"
+											},
+											{
+												"name": "Shipment_Application.twx",
+												"url": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/BAA",
+												"retrievalMode": "latest",
+												"matchStr": "Shipment_Application.*\\.twx"
+											},
+											{
+												"name": "Warehouse_Application.twx",
+												"url": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/BAA",
+												"retrievalMode": "latest",
+												"matchStr": "Warehouse_Application.*\\.twx"
+											}
+										]
+									}
+								},
+								{
+									"EXTRACTTWXPROJECTINFO": {
+										"enabled": "true",
+										"description": "Extract project information from Carrier Application TWX",
+										"sourceTwxFile": "Carrier_Application.twx"
+									}
+								},
+								{
+									"IMPORTPROJECT": {
+										"enabled": "true",
+										"description": "Import 'Carrier Application' App into Studio",
+										"name": "!solutionName!",
+										"file": "!twxFileName!",
+										"type": "!solutionType!",
+										"acronym": "!solutionAcronym!",
+										"snapshot": "!snapshotAcronym!",
+										"maxBASQueryRetries": 3,
+										"verbose": false
+									}
+								},
+								{
+									"EXTRACTTWXPROJECTINFO": {
+										"enabled": "true",
+										"description": "Extract project information from Shipment Application TWX",
+										"sourceTwxFile": "Shipment_Application.twx"
+									}
+								},
+								{
+									"PATCHSOLUTION": {
+										"enabled": "true",
+										"description": "Patch the name of the object store to be used",
+										"sourceTwxFile": "!twxFileName!",
+										"filePatchInfos": [
+											{
+												"name": "Shipment Application",
+												"type": "process",
+												"simpleTextMappings": {
+													"1": {
+														"FNOS1DS": "$(CPETargetOS)$"
+													}
+												}
+											}
+										]
+									}
+								},
+								{
+									"IMPORTPROJECT": {
+										"enabled": "true",
+										"description": "Import 'Shipment Application' App into Studio",
+										"name": "!solutionName!",
+										"file": "!patchedTWXFileName!",
+										"type": "!solutionType!",
+										"acronym": "!solutionAcronym!",
+										"snapshot": "!snapshotAcronym!",
+										"maxBASQueryRetries": 3,
+										"verbose": false
+									}
+								},
+								{
+									"EXTRACTTWXPROJECTINFO": {
+										"enabled": "true",
+										"description": "Extract project information from Warehouse Application TWX",
+										"sourceTwxFile": "Warehouse_Application.twx"
+									}
+								},
+								{
+									"IMPORTPROJECT": {
+										"enabled": "true",
+										"description": "Import 'Warehouse Application' App into Studio",
+										"name": "!solutionName!",
+										"file": "!twxFileName!",
+										"type": "!solutionType!",
+										"acronym": "!solutionAcronym!",
+										"snapshot": "!snapshotAcronym!",
+										"maxBASQueryRetries": 3,
+										"verbose": false
+									}
+								}
+							]
+						}
+					},
+					{
+						"ICN": {
+							"comment": "Sample steps to import one desktop and one application",
+							"enabled": "$$(deployPart_ICN)$$",
+							"description": "Navigator - Import apps and desktops",
+							"name": "Prepare Apps and Desktops",
+							"relativeBasePath": "Business Automation Navigator",
+							"subActions": [
+								{
+									"DOWNLOADRESOURCES": {
+										"comment": "Need to see how to download artifacts from internal github.com",
+										"enabled": "$$(enableArtifactDownloadFromGit)$$",
+										"description": "Download resources required for Navigator",
+										"name": "Download ICN files",
+										"token": "$(gitHubSolutionDownloadToken)$",
+										"replaceExistingFiles": true,
+										"files": [
+											{
+												"url": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/BAA/CarrierApplication.zip"
+											},
+											{
+												"url": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/BAA/ShipmentApplication.zip"
+											},
+											{
+												"url": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/BAA/WarehouseApplication.zip"
+											}
+										]
+									}
+								},
+								{
+									"TESTCONNECTION": {
+										"enabled": "true",
+										"description": "Test Navigator availability"
+									}
+								},
+								{
+									"DETERMINEAPPENGINESERVERID": {
+										"enabled": "true",
+										"description": "Determine App Engine Server Id",
+										"useFirst": true
+									}
+								},
+								{
+									"PATCHAPPLICATION": {
+										"enabled": "true",
+										"description": "Patch 'Carrier Application' app to work in current environment",
+										"file": "CarrierApplication.zip",
+										"simpleTextMappings": {
+											"1": {
+												"cpd-prod.apps.bairtqa1.cp.fyre.ibm.com": "$(cpdUrlPrefix)$.$(ocpBaseUrl)$"
+											}
+										}
+									}
+								},
+								{
+									"IMPORTAPPLICATION": {
+										"enabled": "true",
+										"description": "Import 'Carrier Application' app",
+										"appEngineAppConfigName": "$(appEngineServerId)$",
+										"name": "Carrier Application",
+										"file": "!patchedZIPFileName!"
+									}
+								},
+								{
+									"SETAPPPERMISSIONS": {
+										"enabled": "true",
+										"description": "Make 'Carrier Application' app accessible for all authenticated users",
+										"appEngineAppConfigName": "$(appEngineServerId)$",
+										"name": "Carrier Application",
+										"action": "update",
+										"permissions": [
+											{
+												"name": "#AUTHENTICATED-USERS",
+												"action": "add"
+											}
+										]
+									}
+								},
+								{
+									"PATCHAPPLICATION": {
+										"enabled": "true",
+										"description": "Patch 'Shipment Application' app to work in current environment",
+										"file": "ShipmentApplication.zip",
+										"simpleTextMappings": {
+											"1": {
+												"cpd-prod.apps.bairtqa1.cp.fyre.ibm.com": "$(cpdUrlPrefix)$.$(ocpBaseUrl)$"
+											},
+											"2": {
+												"FNOS1DS": "$(CPETargetOS)$"
+											},
+											"3": {
+												"https://cpd-prod.apps": "https://cpd-cp4ba.app"
+											}
+										}
+									}
+								},
+								{
+									"IMPORTAPPLICATION": {
+										"enabled": "true",
+										"description": "Import 'Shipment Application' app",
+										"appEngineAppConfigName": "$(appEngineServerId)$",
+										"name": "Shipment Application",
+										"file": "!patchedZIPFileName!"
+									}
+								},
+								{
+									"SETAPPPERMISSIONS": {
+										"enabled": "true",
+										"description": "Make 'Shipment Application' app accessible for all authenticated users",
+										"appEngineAppConfigName": "$(appEngineServerId)$",
+										"name": "Shipment Application",
+										"action": "update",
+										"permissions": [
+											{
+												"name": "#AUTHENTICATED-USERS",
+												"action": "add"
+											}
+										]
+									}
+								},
+								{
+									"PATCHAPPLICATION": {
+										"enabled": "true",
+										"description": "Patch 'Warehouse Application' app to work in current environment",
+										"file": "WarehouseApplication.zip",
+										"simpleTextMappings": {
+											"1": {
+												"cpd-prod.apps.bairtqa1.cp.fyre.ibm.com": "$(cpdUrlPrefix)$.$(ocpBaseUrl)$"
+											}
+										}
+									}
+								},
+								{
+									"IMPORTAPPLICATION": {
+										"enabled": "true",
+										"description": "Import 'Warehouse Application' app",
+										"appEngineAppConfigName": "$(appEngineServerId)$",
+										"name": "Warehouse Application",
+										"file": "!patchedZIPFileName!"
+									}
+								},
+								{
+									"SETAPPPERMISSIONS": {
+										"enabled": "true",
+										"description": "Make 'Warehouse Application' app accessible for all authenticated users",
+										"appEngineAppConfigName": "$(appEngineServerId)$",
+										"name": "Warehouse Application",
+										"action": "update",
+										"permissions": [
+											{
+												"name": "#AUTHENTICATED-USERS",
+												"action": "add"
+											}
+										]
+									}
+								},
+								{
+									"DETERMINEAPPLICATIONURL": {
+										"enabled": "true",
+										"description": "Determine Application URLs for all three applications",
+										"appEngineAppConfigName": "$(appEngineServerId)$",
+										"applications": [
+											{
+												"name": "Carrier Application",
+												"variableScope": "global",
+												"variableName": "CarrierApplicationURL"
+											},
+											{
+												"name": "Shipment Application",
+												"variableScope": "global",
+												"variableName": "ShipmentApplicationURL"
+											},
+											{
+												"name": "Warehouse Application",
+												"variableScope": "global",
+												"variableName": "WarehouseApplicationURL"
+											}
+										]
+									}
+								}
+							]
+						}
+					},
+					{
+						"BAI": {
+							"enabled": "$$(deployPart_BAI)$$",
+							"description": "BAI - Create 'Shipment Management' dashboard, and make dashboard visible for all users",
+							"relativeBasePath": "Business Automation Insights",
+							"subActions": [
+								{
+									"DOWNLOADRESOURCES": {
+										"enabled": "$$(enableArtifactDownloadFromGit)$$",
+										"description": "Download resources required for BAI",
+										"name": "Download BAI files",
+										"token": "$(gitHubSolutionDownloadToken)$",
+										"replaceExistingFiles": true,
+										"files": [
+											{
+												"url": "https://github.ibm.com/api/v3/repos/dba/IRT-Solution-Scenarios/contents/ShipmentManagement/$(cp4baVersionShort)$/BAI/Shipment%20Management.json"
+											}
+										]
+									}
+								},
+								{
+									"TESTCONNECTION": {
+										"enabled": "true",
+										"description": "Test BAI capability"
+									}
+								},
+								{
+									"IMPORTDASHBOARD": {
+										"enabled": "true",
+										"description": "Import 'Shipment Management' dashboard",
+										"name": "Shipment Management",
+										"file": "Shipment Management.json",
+										"keepId": false
+									}
+								},
+								{
+									"SETDASHBOARDVISIBILITY": {
+										"enabled": "true",
+										"description": "Make dashboard visible to all users",
+										"name": "Shipment Management",
+										"isShared": true
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	]
+}
